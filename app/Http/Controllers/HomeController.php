@@ -8,19 +8,30 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller implements IntegerConversionInterface
 {
+    /**
+     * Function to get the Integer conversion blade file
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function integerConversionView() {
         return view('task1');
     }
 
+    /**
+     * Function to handle once user input an integer and with to conver into roman numeral
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function integerConversionHandler(Request $request) {
         $this->validate($request, array(
             'integer' => 'required|numeric|min:1|max:3999'
         ));
 
-        //Converts the integer to Roman Numerals
+        // Converts the integer to Roman Numerals
         $romanNumeral = $this->toRomanNumerals($request->integer);
 
-        //Lookup if the record exist in the database
+        // Lookup if the record exist in the database
+        // Only create a record if record already not exist, otherwise
+        // update the number of times converted and last seen
         $lookup = IntegerConversion
             ::firstOrCreate(array(
                 'integer' => $request->integer,
@@ -40,6 +51,10 @@ class HomeController extends Controller implements IntegerConversionInterface
         return view('task1', compact('response'));
     }
 
+    /**
+     * Function to get the recently converted integers
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function recentlyConvertedIntegers() {
         $results = IntegerConversion
             ::take(10)
@@ -52,6 +67,10 @@ class HomeController extends Controller implements IntegerConversionInterface
         ]);
     }
 
+    /**
+     * Function to get the top 10 converted integers
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function topTenConvertedIntegers() {
         $results = IntegerConversion
             ::take(10)
@@ -64,6 +83,12 @@ class HomeController extends Controller implements IntegerConversionInterface
         ]);
     }
 
+    /**
+     * Function to convert an integer to Roman Numeral
+     * Reference - https://stackoverflow.com/questions/14994941/numbers-to-roman-numbers-with-php
+     * @param $integer
+     * @return string
+     */
     public function toRomanNumerals($integer)
     {
         $map = array('M' => 1000, 'CM' => 900, 'D' => 500, 'CD' => 400, 'C' => 100, 'XC' => 90, 'L' => 50, 'XL' => 40, 'X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
